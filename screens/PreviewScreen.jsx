@@ -1,22 +1,18 @@
 import React from 'react';
-import { StyleSheet, View, Image, TouchableOpacity, Text } from 'react-native';
-// Import your helper utility
+import { StyleSheet, View, Image, TouchableOpacity, Text, ScrollView } from 'react-native';
 import { imageToBase64 } from '../lib/gemini'; 
 
 export default function PreviewScreen({ route, navigation }) {
   const { photoUri } = route.params;
 
-  // Modified analyze function to handle conversion and parameter passing
-  async function handleAnalyze() {
+  // Refactored to accept the specific mode chosen by the user
+  async function handleAnalyze(promptKey) {
     try {
-      // 1. Convert the file URI to a base64 string
       const base64Image = await imageToBase64(photoUri);
+      console.log(`Base64 ready for ${promptKey} analysis. Length:`, base64Image.length);
       
-      // 2. Temporary verification log required by the checkpoint
-      console.log("Base64 string length:", base64Image.length);
-      
-      // 3. Pass base64Image, NOT photoUri, to the Result screen
-      navigation.navigate('Result', { base64Image });
+      // Pass BOTH the base64 string AND the selected prompt key
+      navigation.navigate('Result', { base64Image, promptKey });
     } catch (error) {
       console.error("Error during base64 conversion:", error);
     }
@@ -26,27 +22,46 @@ export default function PreviewScreen({ route, navigation }) {
     <View style={styles.container}>
       <Image source={{ uri: photoUri }} style={styles.image} resizeMode="contain" />
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.button, styles.retakeButton]} onPress={() => navigation.goBack()}>
-          <Text style={styles.buttonText}>Retake</Text>
-        </TouchableOpacity>
+      {/* Using a ScrollView for the control panel to fit all buttons neatly */}
+      <ScrollView style={styles.controlPanel} contentContainerStyle={styles.panelContent}>
+        <View style={styles.analysisGroup}>
+          <TouchableOpacity style={[styles.button, styles.academicButton]} onPress={() => handleAnalyze('academic')}>
+            <Text style={styles.buttonText}>🎓 Academic Analysis</Text>
+          </TouchableOpacity>
 
-        {/* Updated to call our async handler */}
-        <TouchableOpacity style={[styles.button, styles.analyzeButton]} onPress={handleAnalyze}>
-          <Text style={styles.buttonText}>Analyze</Text>
+          <TouchableOpacity style={[styles.button, styles.safetyButton]} onPress={() => handleAnalyze('safety')}>
+            <Text style={styles.buttonText}>⚠️ Safety Analysis</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.button, styles.inventoryButton]} onPress={() => handleAnalyze('inventory')}>
+            <Text style={styles.buttonText}>📦 Inventory Analysis</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={[styles.button, styles.retakeButton]} onPress={() => navigation.goBack()}>
+          <Text style={styles.retakeText}>Retake Photo</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 }
 
-// Keep your existing styles exactly the same...
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000', justifyContent: 'space-between' },
+  container: { flex: 1, backgroundColor: '#000' },
   image: { flex: 1, width: '100%' },
-  buttonRow: { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 20, paddingBottom: 40, backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-  button: { flex: 1, marginHorizontal: 10, paddingVertical: 14, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
-  retakeButton: { backgroundColor: '#555555' },
-  analyzeButton: { backgroundColor: '#2E5BBA' },
-  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  controlPanel: { 
+    maxHeight: 280, 
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  panelContent: { padding: 20, alignItems: 'stretch' },
+  analysisGroup: { marginBottom: 12 },
+  button: { paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginBottom: 10 },
+  academicButton: { backgroundColor: '#4A3AFF' },
+  safetyButton: { backgroundColor: '#FF9F0A' },
+  inventoryButton: { backgroundColor: '#34C759' },
+  retakeButton: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#8E8E93', marginBottom: 0 },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+  retakeText: { color: '#8E8E93', fontWeight: '600', fontSize: 15 }
 });

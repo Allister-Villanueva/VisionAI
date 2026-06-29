@@ -26,17 +26,20 @@ export default function CameraScreen({navigation}) {
   }
 
   // 2. Updated capture function matching the guide's state update and logging
-  async function takePicture() {
-    if (!cameraRef.current) return;
-    try {
-      const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-      setPhoto(result.uri);
-      navigation.navigate('Preview', { photoUri: result.uri });
-    } catch (error) {
-      console.error("Failed to take picture:", error);
-    }
+async function takePicture() {
+  if (!cameraRef.current) return;
+  try {
+    const result = await cameraRef.current.takePictureAsync({ 
+      quality: 0.1,      // 1. Maximize file compression
+      scale: 0.5,        // 2. Scales the image size down to 50% width/height
+      skipProcessing: false // Ensures modifications apply correctly
+    });
+    setPhoto(result.uri);
+    navigation.navigate('Preview', { photoUri: result.uri });
+  } catch (error) {
+    console.error("Failed to take picture:", error);
   }
-
+}
   return (
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={styles.camera} facing="back" />
