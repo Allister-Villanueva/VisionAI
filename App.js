@@ -1,23 +1,24 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// Import your screens
+import CameraScreen from './screens/CameraScreen';
+import PreviewScreen from './screens/PreviewScreen';
+import ResultScreen from './screens/ResultScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  // Add this line temporary to test your checkpoint:
-  console.log("Your Gemini Key is:", process.env.EXPO_PUBLIC_GEMINI_KEY);
-
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Camera" component={CameraScreen} />
+        <Stack.Screen name="Preview" component={PreviewScreen} />
+        <Stack.Screen name="Result" component={ResultScreen} />
+        {/* Placeholder for Phase 4 Result screen */}
+        {/* <Stack.Screen name="Result" component={ResultScreen} /> */}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {  
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
